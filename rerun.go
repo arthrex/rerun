@@ -99,7 +99,7 @@ func goinstall(buildpath string) (bool, error) {
 }
 
 func gotest(buildpath string) (bool, error) {
-	cmd := exec.Command("go", "test", "-v", buildpath)
+	cmd := exec.Command("go", "test", "-v", buildpath + "/...")
 
 	buf := bytes.NewBuffer([]byte{})
 	cmd.Stdout = buf
