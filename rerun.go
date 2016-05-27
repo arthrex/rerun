@@ -9,10 +9,12 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"go/build"
@@ -99,7 +101,34 @@ func goinstall(buildpath string) (bool, error) {
 }
 
 func gotest(buildpath string) (bool, error) {
-	cmd := exec.Command("go", "test", "-v", buildpath + "/...")
+	//go test $(go list ./... | grep -v /vendor/)
+	c1 := exec.Command("go", "list", buildpath+"/...")
+	c2 := exec.Command("grep", "-v", "/vendor/")
+
+	r, w := io.Pipe()
+	c1.Stdout = w
+	c2.Stdin = r
+
+	var testFiles bytes.Buffer
+	c2.Stdout = &testFiles
+
+	c1.Start()
+	c2.Start()
+	c1.Wait()
+	w.Close()
+	c2.Wait()
+
+	optionsStr := strings.Split(string(testFiles.Bytes()), "\n")
+
+	for i := range optionsStr {
+		optionsStr[i] = buildpath + "/" + optionsStr[i]
+	}
+
+	optionsStr = append([]string{"test"}, optionsStr...)
+
+	fmt.Println(optionsStr)
+
+	cmd := exec.Command("go", optionsStr...)
 
 	buf := bytes.NewBuffer([]byte{})
 	cmd.Stdout = buf
