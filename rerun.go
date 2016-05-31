@@ -118,11 +118,7 @@ func gotest(buildpath string) (bool, error) {
 	w.Close()
 	c2.Wait()
 
-	optionsStr := strings.Split(string(testFiles.Bytes()), "\n")
-
-	for i := range optionsStr {
-		optionsStr[i] = buildpath + "/" + optionsStr[i]
-	}
+	optionsStr := strings.Split(strings.TrimSpace(string(testFiles.Bytes())), "\n")
 
 	optionsStr = append([]string{"test"}, optionsStr...)
 
