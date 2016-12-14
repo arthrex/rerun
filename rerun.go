@@ -53,12 +53,13 @@ func scanChanges(path string, cb scanCallback) {
 
 			if info.ModTime().After(last) {
 				cb(path)
+				fmt.Println(info)
 				last = time.Now()
 			}
 			return nil
 		})
 
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(5000 * time.Millisecond)
 	}
 }
 
